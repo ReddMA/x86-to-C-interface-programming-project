@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <windows.h>
 
 extern double dot_product_asm(const double* a, const double* b, int n);
@@ -14,12 +15,14 @@ double dot_product_c(const double* a, const double* b, int n) {
 
 int main() {
     int n;
-    printf("Enter the size of the vectors: ");
+    printf("Enter the size of the vectors(2^n): ");
     scanf_s("%d", &n);
 
+    int size = (int)pow(2, n);
+
     // Allocate memory for vectors dynamically
-    double* a = (double*)malloc(n * sizeof(double));
-    double* b = (double*)malloc(n * sizeof(double));
+    double* a = (double*)malloc(size * sizeof(double));
+    double* b = (double*)malloc(size * sizeof(double));
 
     if (a == NULL || b == NULL) {
         printf("Memory allocation failed\n");
@@ -27,31 +30,43 @@ int main() {
     }
 
     // Fill vector a with increasing order and vector b with decreasing order
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < size; i++) {
         a[i] = i + 1;         // Elements in increasing order from 1 to n
-        b[i] = n - i;         // Elements in decreasing order from n to 1
+        b[i] = size - i;     // Elements in decreasing order from n to 1
     }
 
     LARGE_INTEGER frequency, start, end;
-    double time_c, result_c, time_asm, result_asm;
-
-    // Get the frequency for the high-resolution performance counter
     QueryPerformanceFrequency(&frequency);
 
-    // Measure C version
-    QueryPerformanceCounter(&start);
-    result_c = dot_product_c(a, b, n);
-    QueryPerformanceCounter(&end);
-    time_c = (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+    double time_c_total = 0.0, time_asm_total = 0.0, time_c = 0.0, time_asm = 0.0;
+    double result_c, result_asm;
+    int iterations = 30; // Run 30 times
 
-    printf("Dot product C: %lf, Time: %f seconds\n", result_c, time_c);
-    printf("\n");
-    QueryPerformanceCounter(&start);
-    result_asm = dot_product_asm(a, b, n);
-    QueryPerformanceCounter(&end);
-    time_asm = (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+    for (int i = 0; i < iterations; i++) {
+        QueryPerformanceCounter(&start);
+        result_c = dot_product_c(a, b, size); // Ensure you're passing 'size', not 'n'
+        QueryPerformanceCounter(&end);
+        time_c = (double)(end.QuadPart - start.QuadPart) * 1000.0 / frequency.QuadPart; // Accumulate time in milliseconds'
+        time_c_total += time_c;
+        printf("Dot product C: %lf, Time: %lf ms\n", result_c, time_c);
 
-    printf("Dot product ASM: %lf, Time: %f seconds\n", result_asm, time_asm);
+        QueryPerformanceCounter(&start);
+        result_asm = dot_product_asm(a, b, size); // Ensure you're passing 'size', not 'n'
+        QueryPerformanceCounter(&end);
+        time_asm = (double)(end.QuadPart - start.QuadPart) * 1000.0 / frequency.QuadPart; // Accumulate time in milliseconds
+        time_asm_total += time_asm;
+        printf("Dot product asm: %lf, Time: %lf ms\n", result_asm, time_asm);
+    }
+
+    // Calculate average times
+    double avg_time_c = time_c_total / iterations;
+    double avg_time_asm = time_asm_total / iterations;
+    if (result_c == result_asm)
+        printf("Dot product C and ASM results are equal\n");
+    else
+        printf("Dot product C and ASM results are not equal\n");
+    printf("Average Dot product C time: %lf ms\n", avg_time_c);
+    printf("Average Dot product ASM time: %lf ms\n", avg_time_asm);
 
     // Free allocated memory
     free(a);
