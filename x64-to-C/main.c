@@ -12,10 +12,29 @@ double dot_product_c(const double* a, const double* b, int n) {
 }
 
 int main() {
-    // Example vectors
-    const int n = 5;
-    double a[5] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
-    double b[5] = { 5.0, 4.0, 3.0, 2.0, 1.0 };
+    int n;
+    printf("Enter the size of the vectors: ");
+    scanf("%d", &n);
+
+    // Allocate memory for vectors dynamically
+    double* a = (double*)malloc(n * sizeof(double));
+    double* b = (double*)malloc(n * sizeof(double));
+
+    if (a == NULL || b == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    // Prompt user for vector values
+    printf("Enter values for the first vector:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%lf", &a[i]);
+    }
+
+    printf("Enter values for the second vector:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%lf", &b[i]);
+    }
 
     LARGE_INTEGER frequency, start, end;
     double time_c, result_c;
@@ -30,6 +49,10 @@ int main() {
     time_c = (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
     printf("Dot product C: %lf, Time: %f seconds\n", result_c, time_c);
+
+    // Free allocated memory
+    free(a);
+    free(b);
 
     return 0;
 }
