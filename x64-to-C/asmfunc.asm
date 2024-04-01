@@ -1,34 +1,27 @@
-section .data
-vectorA dq 1.0, 2.0, 3.0, 4.0, 5.0 ; Example vector A of length 4
-vectorB dq 5.0, 4.0, 3.0, 2.0, 1.0  ; Example vector B of length 4
-simd dq 0.0                    ; To store the result
-n dd 5                        ; Length of each vector
-
 section .text
-global main
-main:
-    mov rbp, rsp               ; For correct debugging  
-    mov ecx, [n]               ; Move n into ecx, the loop counter
-    xor esi, esi               ; Start index at 0
+global dot_product_asm
+bits 64
+
+dot_product_asm:
+    ; rcx = pointer to first vector
+    ; rdx = pointer to second vector
+    ; r8 = length of vectors
+    xor rsi, rsi              ; Index i = 0
+    xorpd xmm0, xmm0          ; xmm0 = 0 (accumulator for the dot product result)
 
 loop_start:
-    cmp esi, ecx               ; Compare current index with n
-    jge loop_end               ; If esi >= n, we're done
+    cmp rsi, r8               ; Compare i with n
+    jge loop_end              ; If i >= n, exit loop
 
-    ; Load one element from vectorA into xmm0
-    movsd xmm0, [vectorA + esi*8]
-    ; Load one element from vectorB into xmm1
-    movsd xmm1, [vectorB + esi*8]
+    ; Multiply vectors element-wise and accumulate
+    movsd xmm1, [rcx + rsi*8] ; Load element of first vector into xmm1
+    movsd xmm2, [rdx + rsi*8] ; Load element of second vector into xmm2
+    mulsd xmm1, xmm2          ; xmm1 = xmm1 * xmm2 (element-wise multiplication)
+    addsd xmm0, xmm1          ; Accumulate the result: xmm0 += xmm1
 
-    ; Multiply and accumulate
-    mulsd xmm0, xmm1           ; xmm0 = xmm0 * xmm1
-    addsd xmm2, xmm0           ; xmm2 = xmm2 + xmm0
-
-    inc esi                    ; Move to the next element
-    jmp loop_start             ; Continue loop
+    inc rsi                   ; Increment index i
+    jmp loop_start            ; Jump back to the start of the loop
 
 loop_end:
-    ; Store the result
-    movsd [simd], xmm2         ; Store the dot product result
-    xor rax, rax
+    movsd xmm1, xmm0          ; Move the result into xmm1 for return
     ret
