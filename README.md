@@ -4,7 +4,7 @@ Members:
 1) Austria, Rafael Antonio
 2) Go, Michael Joseph
 
-The correctness check will print out “Dot product C and ASM results are equal” when both C and ASM are checked if their outputs are the same Dot product, otherwise it will print “Dot product C and ASM are not equal.
+To find out if the dot product of both codes are correct or not, the code has a checker if the ASM dot product and the C dot product yield the same result. If they are it will print out “Dot product C and ASM results are equal”, otherwise it will print out “Dot product C and ASM results are not equal”.
 
 Vector size 2^20:
 
