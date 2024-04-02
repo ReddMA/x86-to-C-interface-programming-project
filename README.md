@@ -23,5 +23,5 @@ Vector size 2^30 by i5 10th gen:
 Vector size 2^30 by i9 9th gen:
  ![image](https://github.com/ReddMA/x86-to-C-interface-programming-project/assets/98443988/2909cca2-a94f-45c0-a94a-9f3a60ab3b70)
 
-The Assembly code demonstrates its performance by computing the dot product calculation in roughly have the time the C code did in the given test cases for the vector size, showing that writing code in Assembly can make dot product calculations quicker than using C.
+The Assembly code demonstrates its performance by computing the dot product calculation in roughly half the time the C code did in the given test cases for the vector size, showing that writing code in Assembly can make dot product calculations quicker than using C.
 
